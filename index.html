@@ -345,6 +345,963 @@
                 <button onclick="closeModal('deposit-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="flex flex-col items-center bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                <p class="text-xs text-slate-300 font-semibold text-center">Please pay via <span class="text-pink-400 font-bold">bKash</span> or <span class="text-orange-400 font-bold">Nagad</span> to the personal number below:</p>
+                <div class="bg-slate-950 px-4 py-2.5 rounded-lg border border-slate-800 flex items-center justify-between w-full">
+                    <span class="text-xs text-slate-400 font-medium">Agent/Personal Number:</span>
+                    <span class="text-emerald-400 font-mono font-bold text-sm tracking-wider">01760270407</span>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Confirm Deposit Amount ($)</label>
+                    <input type="number" id="deposit-amount-input" min="10" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-accentGreen">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Transaction ID (TrxID)</label>
+                    <input type="text" id="deposit-trx-input" placeholder="e.g. 9N8K7654" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm uppercase focus:outline-none focus:border-accentGreen">
+                </div>
+            </div>
+            <button onclick="submitDepositRequest()" class="w-full bg-accentGreen hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-lg transition text-xs shadow-lg">
+                I Have Paid - Add Balance
+            </button>
+        </div>
+    </div>
+
+    <div id="withdraw-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-cardBg border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+                <h3 class="font-bold text-white text-base"><i class="fa-solid fa-arrow-up-right-from-square text-amber-400 mr-2"></i> Request Withdrawal</h3>
+                <button onclick="closeModal('withdraw-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Withdrawal Method</label>
+                    <select id="withdraw-method" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-amber-500">
+                        <option value="bKash">bKash</option>
+                        <option value="Nagad">Nagad</option>
+                        <option value="USDT">USDT Crypto</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Account Number / Address</label>
+                    <input type="text" id="withdraw-account" placeholder="Enter account details" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Amount ($)</label>
+                    <input type="number" id="withdraw-amount" min="10" value="50" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-amber-500">
+                </div>
+            </div>
+            <button onclick="submitWithdrawRequest()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-lg transition text-xs shadow-lg">
+                Submit Withdrawal Request
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9K4XpIYg9vZAEKsTzfnUxozE9RHXy8q4",
+            authDomain: "apexbet-954e8.firebaseapp.com",
+            databaseURL: "https://apexbet-954e8-default-rtdb.firebaseio.com",
+            projectId: "apexbet-954e8",
+            storageBucket: "apexbet-954e8.firebasestorage.app",
+            messagingSenderId: "967180729015",
+            appId: "1:967180729015:web:1b19a06d767d70bcba6b32",
+            measurementId: "G-165KYQQ858"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let currentMobile = localStorage.getItem('apex_logged_mobile') || null;
+        let balance = 0.00;
+        let authMode = 'login';
+        let allUsersData = {};
+
+        db.ref('users').on('value', (snapshot) => {
+            allUsersData = snapshot.val() || {};
+            loadUserSession();
+        });
+
+        function loadUserSession() {
+            if (currentMobile && allUsersData[currentMobile]) {
+                balance = allUsersData[currentMobile].balance || 0;
+                document.getElementById('current-mobile').innerText = `+91 ${currentMobile}`;
+                document.getElementById('profile-mobile-display').innerText = `+91 ${currentMobile}`;
+                document.getElementById('profile-balance-display').innerText = `$${balance.toFixed(2)}`;
+            } else {
+                balance = 0.00;
+                document.getElementById('current-mobile').innerText = "Not Logged In";
+                document.getElementById('profile-mobile-display').innerText = "Not Logged In";
+                document.getElementById('profile-balance-display').innerText = "$0.00";
+                
+                if (!currentMobile) {
+                    openModal('auth-modal');
+                }
+            }
+            document.getElementById('user-balance').innerText = `$${balance.toFixed(2)}`;
+        }
+
+        function checkAuthAndOpenProfile() {
+            if (!currentMobile || !allUsersData[currentMobile]) {
+                openModal('auth-modal');
+            } else {
+                loadUserSession();
+                openModal('profile-modal');
+            }
+        }
+
+        function saveUserBalance() {
+            if (!currentMobile || !allUsersData[currentMobile]) return;
+            db.ref('users/' + currentMobile).update({ balance: balance });
+        }
+
+        function switchGameTab(game) {
+            const aviatorCont = document.getElementById('game-aviator-container');
+            const colorCont = document.getElementById('game-color-container');
+            const minesCont = document.getElementById('game-mines-container');
+
+            const tabAviator = document.getElementById('tab-aviator');
+            const tabColor = document.getElementById('tab-color');
+            const tabMines = document.getElementById('tab-mines');
+            
+            const mobAviator = document.getElementById('mobile-tab-aviator');
+            const mobColor = document.getElementById('mobile-tab-color');
+            const mobMines = document.getElementById('mobile-tab-mines');
+
+            // Hide all
+            aviatorCont.classList.add('hidden');
+            colorCont.classList.add('hidden');
+            minesCont.classList.add('hidden');
+
+            tabAviator.className = "px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+            tabColor.className = "px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+            tabMines.className = "px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+            
+            mobAviator.className = "flex-1 py-1.5 rounded text-slate-400 text-center transition";
+            mobColor.className = "flex-1 py-1.5 rounded text-slate-400 text-center transition";
+            mobMines.className = "flex-1 py-1.5 rounded text-slate-400 text-center transition";
+
+            if (game === 'aviator') {
+                aviatorCont.classList.remove('hidden');
+                tabAviator.className = "px-4 py-1.5 rounded-lg bg-slate-800 text-white transition";
+                mobAviator.className = "flex-1 py-1.5 rounded bg-slate-800 text-white text-center transition";
+            } else if (game === 'color') {
+                colorCont.classList.remove('hidden');
+                tabColor.className = "px-4 py-1.5 rounded-lg bg-slate-800 text-white transition";
+                mobColor.className = "flex-1 py-1.5 rounded bg-slate-800 text-white text-center transition";
+            } else if (game === 'mines') {
+                minesCont.classList.remove('hidden');
+                tabMines.className = "px-4 py-1.5 rounded-lg bg-slate-800 text-white transition";
+                mobMines.className = "flex-1 py-1.5 rounded bg-slate-800 text-white text-center transition";
+                initMinesGrid();
+            }
+        }
+
+        function switchAuthTab(mode) {
+            authMode = mode;
+            const loginBtn = document.getElementById('tab-login-btn');
+            const regBtn = document.getElementById('tab-register-btn');
+            const submitBtn = document.getElementById('auth-submit-btn');
+
+            if (mode === 'login') {
+                loginBtn.className = "flex-1 py-1.5 rounded bg-slate-800 text-white transition text-center";
+                regBtn.className = "flex-1 py-1.5 rounded text-slate-400 hover:text-white transition text-center";
+                submitBtn.innerText = "Login to Account";
+            } else {
+                regBtn.className = "flex-1 py-1.5 rounded bg-slate-800 text-white transition text-center";
+                loginBtn.className = "flex-1 py-1.5 rounded text-slate-400 hover:text-white transition text-center";
+                submitBtn.innerText = "Register New Account";
+            }
+        }
+
+        function handleAuthAction() {
+            let mobile = document.getElementById('auth-mobile').value.trim();
+            let password = document.getElementById('auth-password').value.trim();
+            if (mobile.length !== 10 || !password) { alert("Please enter a valid 10-digit mobile number and password."); return; }
+
+            if (authMode === 'register') {
+                if (allUsersData[mobile]) { alert("Mobile number already registered! Please login."); return; }
+                let newUserObj = {
+                    password: password,
+                    balance: 100.00,
+                    regDate: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()
+                };
+                db.ref('users/' + mobile).set(newUserObj, (error) => {
+                    if (!error) {
+                        currentMobile = mobile;
+                        localStorage.setItem('apex_logged_mobile', currentMobile);
+                        alert("Account registered successfully! Welcome bonus $100.00 added.");
+                        closeModal('auth-modal');
+                    }
+                });
+            } else {
+                if (!allUsersData[mobile] || allUsersData[mobile].password !== password) {
+                    alert("Invalid mobile number or password!");
+                    return;
+                }
+                currentMobile = mobile;
+                localStorage.setItem('apex_logged_mobile', currentMobile);
+                alert(`Logged in successfully!`);
+                closeModal('auth-modal');
+                loadUserSession();
+            }
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('apex_logged_mobile');
+            currentMobile = null;
+            loadUserSession();
+            closeModal('profile-modal');
+            alert("Logged out successfully.");
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function submitDepositRequest() {
+            if (!currentMobile || !allUsersData[currentMobile]) { alert("Please login first!"); openModal('auth-modal'); return; }
+            const amount = parseFloat(document.getElementById('deposit-amount-input').value) || 0;
+            const trxId = document.getElementById('deposit-trx-input').value.trim();
+            if (amount <= 0 || !trxId) { alert("Please enter valid amount and TrxID."); return; }
+
+            db.ref('deposits').push({ user: currentMobile, amount: amount, trxId: trxId, time: new Date().toLocaleTimeString() });
+            closeModal('deposit-modal');
+            alert("Deposit request sent to Admin for verification.");
+        }
+
+        function submitWithdrawRequest() {
+            if (!currentMobile || !allUsersData[currentMobile]) { alert("Please login first!"); openModal('auth-modal'); return; }
+            const method = document.getElementById('withdraw-method').value;
+            const account = document.getElementById('withdraw-account').value.trim();
+            const amount = parseFloat(document.getElementById('withdraw-amount').value) || 0;
+
+            if (amount <= 0 || !account) { alert("Please enter valid account and amount."); return; }
+            if (amount > balance) { alert("Insufficient balance for withdrawal!"); return; }
+
+            balance -= amount;
+            saveUserBalance();
+            db.ref('withdrawals').push({ user: currentMobile, method: method, account: account, amount: amount, time: new Date().toLocaleTimeString() });
+            closeModal('withdraw-modal');
+            alert("Withdrawal request submitted successfully!");
+        }
+
+        // MINES GAME LOGIC (Smooth, Gentle Progression starting from 2 mines)
+        let minesGameActive = false;
+        let minePositions = [];
+        let revealedCount = 0;
+        let currentMinesStake = 10;
+        let totalMinesCount = 2;
+        let currentMinesMultiplier = 1.00;
+
+        function initMinesGrid() {
+            const grid = document.getElementById('mines-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < 25; i++) {
+                grid.innerHTML += `
+                    <button onclick="clickMineTile(${i})" id="mine-tile-${i}" class="h-12 bg-slate-950 hover:bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-lg font-bold transition disabled:cursor-not-allowed" disabled>
+                        <i class="fa-solid fa-gem text-slate-700 opacity-30"></i>
+                    </button>
+                `;
+            }
+        }
+
+        function toggleMinesGame() {
+            if (!currentMobile || !allUsersData[currentMobile]) { alert("Please login first!"); openModal('auth-modal'); return; }
+            const actionBtn = document.getElementById('mines-action-btn');
+
+            if (!minesGameActive) {
+                // Start game
+                currentMinesStake = parseFloat(document.getElementById('mines-stake').value) || 10;
+                totalMinesCount = parseInt(document.getElementById('mines-count').value) || 2;
+
+                if (currentMinesStake > balance) { alert("Insufficient balance!"); return; }
+
+                balance -= currentMinesStake;
+                saveUserBalance();
+
+                minesGameActive = true;
+                revealedCount = 0;
+                currentMinesMultiplier = 1.00;
+                updateMinesDisplay();
+
+                // Randomly assign mines
+                minePositions = [];
+                while(minePositions.length < totalMinesCount) {
+                    let r = Math.floor(Math.random() * 25);
+                    if(!minePositions.includes(r)) minePositions.push(r);
+                }
+
+                document.getElementById('mines-status-overlay').classList.add('hidden');
+                actionBtn.innerText = "CASH OUT ($0.00)";
+                actionBtn.className = "w-full bg-amber-600 hover:bg-amber-500 text-white font-black py-3 rounded-xl transition shadow-lg text-sm tracking-wider";
+
+                for (let i = 0; i < 25; i++) {
+                    let btn = document.getElementById(`mine-tile-${i}`);
+                    btn.disabled = false;
+                    btn.className = "h-12 bg-slate-950 hover:bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-lg font-bold transition cursor-pointer";
+                    btn.innerHTML = `<i class="fa-solid fa-gem text-slate-700 opacity-30"></i>`;
+                }
+            } else {
+                // Manual Cashout
+                cashOutMines();
+            }
+        }
+
+        // Extremely smooth multiplier curve preventing rapid spikes on early taps
+        function calculateMultiplier(revealed, mines) {
+            let mult = 1.0;
+            let totalTiles = 25;
+            for (let i = 0; i < revealed; i++) {
+                let safeRemaining = totalTiles - mines - i;
+                let totalRemaining = totalTiles - i;
+                let prob = safeRemaining / totalRemaining;
+                // Softened growth scalar scaling gently by mine count
+                let growthFactor = 0.98 + (mines * 0.002);
+                mult *= (growthFactor / prob);
+            }
+            // Graduated linear damping on early clicks so first few diamonds give small, realistic steps
+            if (revealed === 1) mult = Math.min(mult, 1.08);
+            if (revealed === 2) mult = Math.min(mult, 1.18);
+            if (revealed === 3) mult = Math.min(mult, 1.30);
+
+            return Math.max(1.01, parseFloat(mult.toFixed(2)));
+        }
+
+        function clickMineTile(idx) {
+            if (!minesGameActive) return;
+            let btn = document.getElementById(`mine-tile-${idx}`);
+            if (btn.disabled) return;
+
+            if (minePositions.includes(idx)) {
+                // Hit a mine! Game Over
+                btn.disabled = true;
+                btn.className = "h-12 bg-rose-600 border border-rose-500 rounded-lg flex items-center justify-center text-white shadow-[0_0_10px_rgba(220,38,38,0.8)]";
+                btn.innerHTML = `<i class="fa-solid fa-bomb"></i>`;
+                revealAllMines(false);
+                endMinesGame(false);
+            } else {
+                // Safe diamond
+                btn.disabled = true;
+                btn.className = "h-12 bg-emerald-950 border border-emerald-500 rounded-lg flex items-center justify-center text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.5)]";
+                btn.innerHTML = `<i class="fa-solid fa-gem"></i>`;
+                
+                revealedCount++;
+                currentMinesMultiplier = calculateMultiplier(revealedCount, totalMinesCount);
+                updateMinesDisplay();
+
+                let profit = currentMinesStake * currentMinesMultiplier;
+                document.getElementById('mines-action-btn').innerText = `CASH OUT ($${profit.toFixed(2)})`;
+
+                // If all safe spots cleared automatically win
+                if (revealedCount >= (25 - totalMinesCount)) {
+                    cashOutMines();
+                }
+            }
+        }
+
+        function cashOutMines() {
+            if (!minesGameActive) return;
+            let profit = currentMinesStake * currentMinesMultiplier;
+            balance += profit;
+            saveUserBalance();
+            revealAllMines(true);
+            alert(`🎉 Cashed out successfully! Won $${profit.toFixed(2)}`);
+            endMinesGame(true);
+        }
+
+        function revealAllMines(won) {
+            for (let i = 0; i < 25; i++) {
+                let btn = document.getElementById(`mine-tile-${i}`);
+                btn.disabled = true;
+                if (minePositions.includes(i)) {
+                    btn.className = "h-12 bg-rose-950/80 border border-rose-700 rounded-lg flex items-center justify-center text-rose-500";
+                    btn.innerHTML = `<i class="fa-solid fa-bomb"></i>`;
+                }
+            }
+        }
+
+        function endMinesGame(won) {
+            minesGameActive = false;
+            const overlay = document.getElementById('mines-status-overlay');
+            overlay.classList.remove('hidden');
+            overlay.innerHTML = `
+                <i class="fa-solid ${won ? 'fa-trophy text-emerald-400' : 'fa-skull text-rose-500'} text-4xl mb-2 animate-bounce"></i>
+                <p class="text-white font-bold text-sm mb-2">${won ? 'Round Won!' : 'Boom! Hit a Mine'}</p>
+                <button onclick="toggleMinesGame()" class="bg-accentGreen text-slate-950 font-bold px-4 py-1.5 rounded-lg text-xs">Play Again</button>
+            `;
+            document.getElementById('mines-action-btn').innerText = "PLAY GAME";
+            document.getElementById('mines-action-btn').className = "w-full bg-accentGreen hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl transition shadow-lg text-sm tracking-wider";
+        }
+
+        function updateMinesDisplay() {
+            document.getElementById('mines-multiplier').innerText = `${currentMinesMultiplier.toFixed(2)}x`;
+            document.getElementById('mines-profit').innerText = `$${(currentMinesStake * currentMinesMultiplier).toFixed(2)}`;
+        }
+
+        // Color Trading Game Logic
+        let selectedColorOption = '';
+        let selectedMultiplier = 2;
+        let colorHistory = [
+            { period: '2026030301053', price: '94281', number: '1', color: 'Small / Green' },
+            { period: '2026030301052', price: '48390', number: '0', color: 'Small / Violet' },
+            { period: '2026030301051', price: '12948', number: '8', color: 'Big / Red' },
+            { period: '2026030301050', price: '58291', number: '4', color: 'Small / Green' }
+        ];
+
+        function openColorBetModal(option, multiplier) {
+            selectedColorOption = option;
+            selectedMultiplier = multiplier;
+            document.getElementById('color-modal-title').innerText = `Place Bet: ${option}`;
+            openModal('color-bet-modal');
+        }
+
+        function setColorStake(val) { document.getElementById('color-stake-input').value = val; }
+
+        function submitColorBet() {
+            if (!currentMobile || !allUsersData[currentMobile]) { alert("Please login first!"); openModal('auth-modal'); closeModal('color-bet-modal'); return; }
+            const stake = parseFloat(document.getElementById('color-stake-input').value) || 0;
+            if (stake <= 0) { alert("Enter valid bet amount."); return; }
+            if (stake > balance) { alert("Insufficient balance!"); return; }
+
+            balance -= stake;
+            saveUserBalance();
+
+            const currentPeriod = document.getElementById('color-period-id').innerText;
+            db.ref('colorBets').push({ 
+                user: currentMobile, 
+                period: currentPeriod, 
+                option: selectedColorOption, 
+                stake: stake, 
+                multiplier: selectedMultiplier, 
+                time: new Date().toLocaleTimeString() 
+            });
+
+            closeModal('color-bet-modal');
+            alert(`Successfully placed $${stake} bet on ${selectedColorOption} for period ${currentPeriod}!`);
+        }
+
+        function renderColorHistory() {
+            let tbody = document.getElementById('color-history-table');
+            tbody.innerHTML = '';
+            colorHistory.forEach(item => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-900/40">
+                        <td class="py-2.5 px-3 text-slate-300">${item.period}</td>
+                        <td class="py-2.5 px-3 text-white font-bold">${item.price}</td>
+                        <td class="py-2.5 px-3 font-bold">${item.number}</td>
+                        <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded border text-[10px] font-bold bg-slate-800 text-emerald-400 border-slate-700">${item.color}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        let colorTimerSeconds = 60;
+        function startColorTimer() {
+            setInterval(() => {
+                colorTimerSeconds--;
+                let m = Math.floor(colorTimerSeconds / 60);
+                let s = colorTimerSeconds % 60;
+                document.getElementById('color-timer-display').innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
+
+                if (colorTimerSeconds <= 0) {
+                    colorTimerSeconds = 60;
+                    
+                    let randNum = Math.floor(Math.random() * 10);
+                    let sizeLabel = randNum >= 5 ? 'Big' : 'Small';
+                    let colorLabel = randNum === 5 ? 'Violet' : (randNum % 2 === 0 ? 'Red' : 'Green');
+                    let winningColorCombo = `${sizeLabel} / ${colorLabel}`;
+                    let currentPeriod = document.getElementById('color-period-id').innerText;
+
+                    db.ref('colorBets').once('value', (snapshot) => {
+                        let bets = snapshot.val() || {};
+                        Object.keys(bets).forEach(betId => {
+                            let bet = bets[betId];
+                            if (bet.period === currentPeriod) {
+                                let isWinner = false;
+                                if (bet.option === sizeLabel || bet.option === colorLabel || bet.option === `Number ${randNum}`) {
+                                    isWinner = true;
+                                }
+
+                                if (isWinner && bet.user === currentMobile) {
+                                    let winnings = bet.stake * bet.multiplier;
+                                    balance += winnings;
+                                    saveUserBalance();
+                                    alert(`🎉 Congratulations! You won $${winnings.toFixed(2)} on Period ${currentPeriod}!`);
+                                }
+                            }
+                        });
+                    });
+
+                    let newPeriod = (parseInt(currentPeriod) + 1).toString();
+                    document.getElementById('color-period-id').innerText = newPeriod;
+
+                    colorHistory.unshift({ period: currentPeriod, price: Math.floor(10000 + Math.random() * 90000).toString(), number: randNum.toString(), color: winningColorCombo });
+                    if (colorHistory.length > 10) colorHistory.pop();
+                    renderColorHistory();
+                }
+            }, 1000);
+        }
+
+        // Aviator Game Logic
+        let flightState = 'IDLE'; 
+        let currentMultiplier = 1.00;
+        let flightInterval = null;
+        let hasPlacedBet = false;
+        let hasCashedOut = false;
+        let currentStake = 20;
+        let isAutoMode = false;
+        let flightHistory = [1.42, 3.53, 1.08, 1.28, 78.97, 1.64, 3.81];
+
+        const canvas = document.getElementById('aviator-canvas');
+        const ctx = canvas.getContext('2d');
+        let progress = 0;
+        let animFrameId = null;
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function setStake(val) { document.getElementById('stake-input').value = val; }
+
+        function setBetMode(mode) {
+            isAutoMode = (mode === 'auto');
+            const manualBtn = document.getElementById('mode-manual-btn');
+            const autoBtn = document.getElementById('mode-auto-btn');
+            const autoToggle = document.getElementById('auto-cashout-toggle');
+
+            if (isAutoMode) {
+                autoBtn.className = "flex-1 py-1 rounded bg-slate-800 text-white transition text-center";
+                manualBtn.className = "flex-1 py-1 rounded text-slate-400 hover:text-white transition text-center";
+                autoToggle.checked = true;
+            } else {
+                manualBtn.className = "flex-1 py-1 rounded bg-slate-800 text-white transition text-center";
+                autoBtn.className = "flex-1 py-1 rounded text-slate-400 hover:text-white transition text-center";
+            }
+        }
+
+        function startCountdown() {
+            flightState = 'COUNTDOWN';
+            let timer = 3;
+            const statusText = document.getElementById('aviator-status-text');
+            const multiplierDisplay = document.getElementById('aviator-multiplier');
+            const actionBtn = document.getElementById('action-btn');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            progress = 0;
+            multiplierDisplay.className = "text-6xl lg:text-7xl font-black text-slate-500 tracking-wider z-10 transition-all";
+            
+            if (isAutoMode && !hasPlacedBet) {
+                currentStake = parseFloat(document.getElementById('stake-input').value) || 20;
+                if (currentStake <= balance) {
+                    balance -= currentStake;
+                    saveUserBalance();
+                    hasPlacedBet = true;
+                }
+            }
+
+            actionBtn.innerText = hasPlacedBet ? (isAutoMode ? "CANCEL (AUTO)" : "CANCEL") : "BET";
+            actionBtn.className = hasPlacedBet ? "w-full bg-amber-600 text-white font-black py-3 rounded-xl text-sm tracking-wider" : "w-full bg-accentGreen hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl text-sm tracking-wider";
+
+            let countInterval = setInterval(() => {
+                if (timer > 0) {
+                    statusText.innerText = `NEXT FLIGHT IN ${timer}s`;
+                    multiplierDisplay.innerText = `1.00x`;
+                    timer--;
+                } else {
+                    clearInterval(countInterval);
+                    launchFlight();
+                }
+            }, 1000);
+        }
+
+        function handleBetAction() {
+            if (!currentMobile || !allUsersData[currentMobile]) { alert("Please login first!"); openModal('auth-modal'); return; }
+            const actionBtn = document.getElementById('action-btn');
+            if (flightState === 'COUNTDOWN') {
+                if (!hasPlacedBet) {
+                    currentStake = parseFloat(document.getElementById('stake-input').value) || 20;
+                    if (currentStake > balance) { alert("Insufficient balance!"); return; }
+                    balance -= currentStake;
+                    saveUserBalance();
+                    hasPlacedBet = true;
+                    actionBtn.innerText = "CANCEL";
+                    actionBtn.className = "w-full bg-amber-600 text-white font-black py-3 rounded-xl text-sm tracking-wider";
+                } else {
+                    balance += currentStake;
+                    saveUserBalance();
+                    hasPlacedBet = false;
+                    actionBtn.innerText = "BET";
+                    actionBtn.className = "w-full bg-accentGreen hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl text-sm tracking-wider";
+                }
+            } 
+            else if (flightState === 'FLYING' && hasPlacedBet && !hasCashedOut) {
+                hasCashedOut = true;
+                const winnings = currentStake * currentMultiplier;
+                balance += winnings;
+                saveUserBalance();
+                actionBtn.innerText = `WON $${winnings.toFixed(2)}!`;
+                actionBtn.className = "w-full bg-emerald-600 text-white font-black py-3 rounded-xl text-sm tracking-wider";
+            }
+            else if (flightState === 'IDLE' || flightState === 'CRASHED') {
+                currentStake = parseFloat(document.getElementById('stake-input').value) || 20;
+                if (currentStake > balance) { alert("Insufficient balance!"); return; }
+                balance -= currentStake;
+                saveUserBalance();
+                hasPlacedBet = true;
+                actionBtn.innerText = "CANCEL (QUEUED)";
+                actionBtn.className = "w-full bg-amber-600 text-white font-black py-3 rounded-xl text-sm tracking-wider";
+            }
+        }
+
+        function launchFlight() {
+            flightState = 'FLYING';
+            currentMultiplier = 1.00;
+            hasCashedOut = false;
+            progress = 0;
+            
+            const statusText = document.getElementById('aviator-status-text');
+            const multiplierDisplay = document.getElementById('aviator-multiplier');
+            const actionBtn = document.getElementById('action-btn');
+
+            statusText.innerText = "";
+            multiplierDisplay.className = "text-6xl lg:text-7xl font-black text-white tracking-wider z-10 transition-all drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]";
+
+            if (hasPlacedBet) {
+                actionBtn.innerText = "CASH OUT";
+                actionBtn.className = "w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-3 rounded-xl transition text-sm tracking-wider animate-pulse shadow-lg";
+            } else {
+                actionBtn.innerText = "IN PLAY";
+                actionBtn.className = "w-full bg-slate-800 text-slate-500 font-black py-3 rounded-xl text-sm tracking-wider cursor-not-allowed";
+            }
+
+            const crashPoint = 1.10 + (Math.pow(Math.random(), 2) * 5.5);
+
+            function renderStep() {
+                if (flightState !== 'FLYING') return;
+                progress += 0.01;
+                if (progress > 1) progress = 1;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const startX = 30, startY = canvas.height - 20;
+                const endX = Math.min(canvas.width - 50, startX + (progress * (canvas.width * 0.70)));
+                const endY = Math.max(30, startY - (progress * (canvas.height * 0.75)));
+                const ctrlX = startX + (endX - startX) * 0.4, ctrlY = startY;
+
+                ctx.beginPath(); ctx.moveTo(startX, startY); ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY); ctx.lineTo(endX, canvas.height); ctx.lineTo(startX, canvas.height); ctx.fillStyle = 'rgba(220, 38, 38, 0.15)'; ctx.fill();
+                ctx.beginPath(); ctx.moveTo(startX, startY); ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY); ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 4; ctx.shadowColor = '#dc2626'; ctx.shadowBlur = 20; ctx.stroke(); ctx.shadowBlur = 0;
+
+                ctx.save(); ctx.translate(endX, endY); ctx.rotate(-Math.PI / 6); ctx.fillStyle = '#dc2626'; ctx.shadowColor = '#dc2626'; ctx.shadowBlur = 12;
+                ctx.beginPath(); ctx.moveTo(-20, 0); ctx.lineTo(20, -4); ctx.lineTo(14, 6); ctx.closePath(); ctx.fill();
+                ctx.restore();
+
+                animFrameId = requestAnimationFrame(renderStep);
+            }
+            renderStep();
+
+            flightInterval = setInterval(() => {
+                currentMultiplier += 0.025 + (currentMultiplier * 0.03);
+                const autoCashoutEnabled = document.getElementById('auto-cashout-toggle').checked;
+                const targetAutoMultiplier = parseFloat(document.getElementById('auto-cashout-input').value) || 2.00;
+                if (autoCashoutEnabled && hasPlacedBet && !hasCashedOut && currentMultiplier >= targetAutoMultiplier) {
+                    hasCashedOut = true;
+                    let winnings = currentStake * currentMultiplier;
+                    balance += winnings;
+                    saveUserBalance();
+                    actionBtn.innerText = `WON $${winnings.toFixed(2)}!`;
+                    actionBtn.className = "w-full bg-emerald-600 text-white font-black py-3 rounded-xl text-sm tracking-wider";
+                }
+
+                if (currentMultiplier >= crashPoint) {
+                    clearInterval(flightInterval);
+                    cancelAnimationFrame(animFrameId);
+                    triggerCrash(crashPoint);
+                } else {
+                    multiplierDisplay.innerText = `${currentMultiplier.toFixed(2)}x`;
+                }
+            }, 80);
+        }
+
+        function triggerCrash(finalMult) {
+            flightState = 'CRASHED';
+            const statusText = document.getElementById('aviator-status-text');
+            const multiplierDisplay = document.getElementById('aviator-multiplier');
+            const actionBtn = document.getElementById('action-btn');
+
+            statusText.innerText = "FLEW AWAY!";
+            multiplierDisplay.innerText = `${finalMult.toFixed(2)}x`;
+            multiplierDisplay.className = "text-6xl lg:text-7xl font-black text-rose-600 tracking-wider z-10 transition-all";
+
+            if (hasPlacedBet && !hasCashedOut) {
+                actionBtn.innerText = "LOST";
+                actionBtn.className = "w-full bg-slate-800 text-rose-500 font-black py-3 rounded-xl text-sm tracking-wider";
+            }
+
+            hasPlacedBet = false;
+            flightHistory.unshift(parseFloat(finalMult.toFixed(2)));
+            if (flightHistory.length > 15) flightHistory.pop();
+            renderHistory();
+
+            setTimeout(() => { startCountdown(); }, 3000);
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('aviator-history');
+            container.innerHTML = '';
+            flightHistory.forEach(val => {
+                const colorClass = val >= 2.00 ? 'text-emerald-400 bg-emerald-950/60 border-emerald-900/50' : 'text-slate-300 bg-slate-900 border-slate-800';
+                container.innerHTML += `<span class="text-[10px] px-2 py-0.5 rounded-md font-bold border ${colorClass} shrink-0">${val.toFixed(2)}x</span>`;
+            });
+        }
+
+        window.onload = function() {
+            renderHistory();
+            startCountdown();
+            renderColorHistory();
+            startColorTimer();
+            initMinesGrid();
+        };
+    </script>
+</body>
+</html>                        BET
+                    </button>
+                </div>
+
+                <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 space-y-3 opacity-75">
+                    <div class="flex bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs font-semibold">
+                        <span class="flex-1 py-1 rounded bg-slate-800 text-white text-center">Bet</span>
+                        <span class="flex-1 py-1 rounded text-slate-500 text-center">Auto</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-slate-400 font-medium">Bet Amount ($)</span>
+                        <div class="space-x-1">
+                            <button class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300 font-semibold">10</button>
+                            <button class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300 font-semibold">50</button>
+                        </div>
+                    </div>
+                    <input type="number" value="20" disabled class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-500 font-bold text-sm">
+                    <div class="h-9"></div>
+                    <button disabled class="w-full bg-slate-800 text-slate-500 font-black py-3 rounded-xl text-sm tracking-wider cursor-not-allowed">
+                        BET
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-color-container" class="bg-cardBg p-5 rounded-2xl border border-slate-800 shadow-2xl space-y-5 hidden">
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div>
+                    <p class="text-xs text-slate-400 uppercase tracking-widest"><i class="fa-solid fa-gamepad text-indigo-400 mr-1"></i> Win Go 1 Min</p>
+                    <p id="color-period-id" class="text-white font-mono font-bold text-sm mt-0.5">2026030301054</p>
+                </div>
+                <div class="text-center sm:text-right">
+                    <p class="text-xs text-slate-400 uppercase tracking-widest">Matching Stop Time</p>
+                    <p id="color-timer-display" class="text-2xl font-black font-mono text-amber-400">00:30</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="openColorBetModal('Big', 2)" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-sm flex flex-col items-center">
+                    <span>BIG (5-9)</span>
+                    <span class="text-[10px] opacity-80">1 : 2</span>
+                </button>
+                <button onclick="openColorBetModal('Small', 2)" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-sm flex flex-col items-center">
+                    <span>SMALL (0-4)</span>
+                    <span class="text-[10px] opacity-80">1 : 2</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+                <button onclick="openColorBetModal('Green', 2)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-sm flex flex-col items-center">
+                    <span>Green</span>
+                    <span class="text-[10px] opacity-80">1 : 2</span>
+                </button>
+                <button onclick="openColorBetModal('Violet', 4.5)" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-sm flex flex-col items-center">
+                    <span>Violet</span>
+                    <span class="text-[10px] opacity-80">1 : 4.5</span>
+                </button>
+                <button onclick="openColorBetModal('Red', 2)" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-sm flex flex-col items-center">
+                    <span>Red</span>
+                    <span class="text-[10px] opacity-80">1 : 2</span>
+                </button>
+            </div>
+
+            <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-2">
+                <p class="text-xs text-slate-400 font-semibold mb-2">Select Specific Number (Payout 1 : 9)</p>
+                <div class="grid grid-cols-5 gap-2">
+                    <button onclick="openColorBetModal('Number 0', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">0</button>
+                    <button onclick="openColorBetModal('Number 1', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">1</button>
+                    <button onclick="openColorBetModal('Number 2', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">2</button>
+                    <button onclick="openColorBetModal('Number 3', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">3</button>
+                    <button onclick="openColorBetModal('Number 4', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">4</button>
+                    <button onclick="openColorBetModal('Number 5', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-purple-400 font-bold py-2.5 rounded-lg text-sm transition">5</button>
+                    <button onclick="openColorBetModal('Number 6', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">6</button>
+                    <button onclick="openColorBetModal('Number 7', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">7</button>
+                    <button onclick="openColorBetModal('Number 8', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">8</button>
+                    <button onclick="openColorBetModal('Number 9', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">9</button>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <p class="text-xs font-bold text-slate-300 uppercase tracking-wider"><i class="fa-solid fa-clock-rotate-left mr-1.5 text-accentGreen"></i> Parity Record History</p>
+                <div class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-400">
+                                    <th class="py-2.5 px-3">Period</th>
+                                    <th class="py-2.5 px-3">Price</th>
+                                    <th class="py-2.5 px-3">Number</th>
+                                    <th class="py-2.5 px-3 text-right">Result</th>
+                                </tr>
+                            </thead>
+                            <tbody id="color-history-table" class="divide-y divide-slate-800/60 font-mono"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-mines-container" class="bg-cardBg p-5 rounded-2xl border border-slate-800 shadow-2xl space-y-4 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3 md:col-span-1">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1 font-semibold">Bet Amount ($)</label>
+                        <input type="number" id="mines-stake" min="1" value="10" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-accentGreen">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1 font-semibold">Mines Count (2 - 24)</label>
+                        <select id="mines-count" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-accentGreen">
+                            <option value="2" selected>2 Mines</option>
+                            <option value="4">4 Mines</option>
+                            <option value="6">6 Mines</option>
+                            <option value="10">10 Mines</option>
+                            <option value="15">15 Mines</option>
+                            <option value="20">20 Mines</option>
+                        </select>
+                    </div>
+                    <div class="pt-2">
+                        <button id="mines-action-btn" onclick="toggleMinesGame()" class="w-full bg-accentGreen hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl transition shadow-lg text-sm tracking-wider">
+                            PLAY GAME
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col items-center justify-center md:col-span-2 relative min-h-[320px]">
+                    <div id="mines-status-overlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-xs flex flex-col items-center justify-center z-10 rounded-xl transition-all">
+                        <i class="fa-solid fa-bomb text-accentGreen text-4xl mb-2 animate-bounce"></i>
+                        <p class="text-white font-bold text-sm">Set your bet & click Play</p>
+                    </div>
+                    
+                    <div class="flex justify-between w-full mb-3 px-2 text-xs font-semibold text-slate-300">
+                        <span>Multiplier: <strong id="mines-multiplier" class="text-emerald-400 font-mono text-sm">1.00x</strong></span>
+                        <span>Profit: <strong id="mines-profit" class="text-emerald-400 font-mono text-sm">$0.00</strong></span>
+                    </div>
+
+                    <div id="mines-grid" class="grid grid-cols-5 gap-2 w-full max-w-[320px]">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="color-bet-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-cardBg border border-slate-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center pb-2.5 border-b border-slate-800">
+                <h3 id="color-modal-title" class="font-bold text-white text-sm">Bet Selection</h3>
+                <button onclick="closeModal('color-bet-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Contract Money ($)</label>
+                    <div class="flex space-x-1 mb-2">
+                        <button onclick="setColorStake(10)" class="flex-1 bg-slate-900 border border-slate-700 hover:border-slate-500 py-1 rounded text-xs font-bold text-white">10</button>
+                        <button onclick="setColorStake(50)" class="flex-1 bg-slate-900 border border-slate-700 hover:border-slate-500 py-1 rounded text-xs font-bold text-white">50</button>
+                        <button onclick="setColorStake(100)" class="flex-1 bg-slate-900 border border-slate-700 hover:border-slate-500 py-1 rounded text-xs font-bold text-white">100</button>
+                        <button onclick="setColorStake(500)" class="flex-1 bg-slate-900 border border-slate-700 hover:border-slate-500 py-1 rounded text-xs font-bold text-white">500</button>
+                    </div>
+                    <input type="number" id="color-stake-input" min="1" value="10" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-emerald-500">
+                </div>
+            </div>
+            <button onclick="submitColorBet()" class="w-full bg-accentGreen hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-lg transition text-xs shadow-lg">
+                Confirm Bet
+            </button>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-cardBg border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+                <h3 class="font-bold text-white text-base"><i class="fa-solid fa-id-card text-indigo-400 mr-2"></i> User Profile</h3>
+                <button onclick="closeModal('profile-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+                <div class="flex items-center space-x-3 pb-3 border-b border-slate-800/80">
+                    <div class="w-12 h-12 bg-indigo-600/20 border border-indigo-500/40 rounded-full flex items-center justify-center text-indigo-400 text-xl font-bold">
+                        <i class="fa-solid fa-phone"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400">Mobile Number</p>
+                        <p id="profile-mobile-display" class="text-white font-bold text-base">-</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 pt-1">
+                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                        <p class="text-[10px] text-slate-400">Available Balance</p>
+                        <p id="profile-balance-display" class="text-emerald-400 font-black text-sm">$0.00</p>
+                    </div>
+                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                        <p class="text-[10px] text-slate-400">Account Status</p>
+                        <p class="text-accentGreen font-bold text-sm"><i class="fa-solid fa-circle text-[8px] mr-1"></i> Active</p>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-2 pt-2">
+                <button onclick="openModal('auth-modal'); closeModal('profile-modal');" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 rounded-lg transition text-xs border border-slate-700">
+                    <i class="fa-solid fa-right-left mr-1"></i> Switch Account / Login
+                </button>
+                <button onclick="logoutUser()" class="w-full bg-rose-950/60 hover:bg-rose-900/60 text-rose-400 border border-rose-900/50 font-semibold py-2.5 rounded-lg transition text-xs">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout Session
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="auth-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-cardBg border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+                <h3 class="font-bold text-white text-base"><i class="fa-solid fa-phone-volume text-accentGreen mr-2"></i> Mobile Login / Register</h3>
+                <button onclick="closeModal('auth-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs font-semibold">
+                <button onclick="switchAuthTab('login')" id="tab-login-btn" class="flex-1 py-1.5 rounded bg-slate-800 text-white transition text-center">Login</button>
+                <button onclick="switchAuthTab('register')" id="tab-register-btn" class="flex-1 py-1.5 rounded text-slate-400 hover:text-white transition text-center">Register</button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Mobile Number (10 Digits)</label>
+                    <input type="tel" id="auth-mobile" maxlength="10" placeholder="e.g. 9876543210" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-accentGreen font-mono">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Password</label>
+                    <input type="password" id="auth-password" placeholder="Enter your password" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-accentGreen">
+                </div>
+            </div>
+            <button id="auth-submit-btn" onclick="handleAuthAction()" class="w-full bg-accentGreen hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-lg transition text-xs shadow-lg">
+                Login to Account
+            </button>
+        </div>
+    </div>
+
+    <div id="deposit-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-cardBg border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+                <h3 class="font-bold text-white text-base"><i class="fa-solid fa-wallet text-accentGreen mr-2"></i> Deposit & Pay</h3>
+                <button onclick="closeModal('deposit-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex flex-col items-center bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
                 <p class="text-xs text-slate-300 font-semibold">Scan QR Code to Pay:</p>
                 <div class="w-36 h-36 bg-white p-2 rounded-xl flex items-center justify-center">
                     <i class="fa-solid fa-qrcode text-slate-950 text-7xl"></i>
