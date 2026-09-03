@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ApexBet - Aviator Game</title>
+    <title>ApexBet - Aviator & Color Trading</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -34,11 +34,16 @@
                 <span class="text-xl font-bold tracking-wider text-white">APEX<span class="text-accentGreen">BET</span></span>
             </div>
 
+            <div class="hidden sm:flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
+                <button onclick="switchGameTab('aviator')" id="tab-aviator" class="px-4 py-1.5 rounded-lg bg-slate-800 text-white transition"><i class="fa-solid fa-plane-departure mr-1.5"></i> Aviator</button>
+                <button onclick="switchGameTab('color')" id="tab-color" class="px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition"><i class="fa-solid fa-palette mr-1.5"></i> Color Trading</button>
+            </div>
+
             <div class="flex items-center space-x-2 sm:space-x-3">
                 <div class="bg-slate-800 px-3 sm:px-4 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-3">
                     <i class="fa-solid fa-wallet text-accentGreen"></i>
                     <div>
-                        <p id="current-username" class="text-[10px] text-slate-400">Guest</p>
+                        <p id="current-mobile" class="text-[10px] text-slate-400">Not Logged In</p>
                         <p id="user-balance" class="font-bold text-emerald-400 text-sm">$0.00</p>
                     </div>
                 </div>
@@ -53,11 +58,15 @@
                 </button>
             </div>
         </div>
+        <div class="flex sm:hidden bg-slate-950 p-1.5 border-t border-slate-800 text-xs font-semibold">
+            <button onclick="switchGameTab('aviator')" id="mobile-tab-aviator" class="flex-1 py-1.5 rounded bg-slate-800 text-white text-center transition"><i class="fa-solid fa-plane mr-1"></i> Aviator</button>
+            <button onclick="switchGameTab('color')" id="mobile-tab-color" class="flex-1 py-1.5 rounded text-slate-400 text-center transition"><i class="fa-solid fa-palette mr-1"></i> Color Trading</button>
+        </div>
     </header>
 
     <main class="max-w-4xl mx-auto px-4 py-6 flex-grow space-y-4 w-full">
-        <div class="bg-cardBg p-4 rounded-2xl border border-slate-800 shadow-2xl space-y-3">
-            
+        
+        <div id="game-aviator-container" class="bg-cardBg p-4 rounded-2xl border border-slate-800 shadow-2xl space-y-3">
             <div class="bg-slate-950/80 p-2 rounded-xl border border-slate-800/80 flex items-center space-x-2 overflow-x-auto scrollbar-none">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1"><i class="fa-solid fa-history mr-1"></i> History</span>
                 <div id="aviator-history" class="flex space-x-1.5"></div>
@@ -121,7 +130,105 @@
                 </div>
             </div>
         </div>
+
+        <div id="game-color-container" class="bg-cardBg p-5 rounded-2xl border border-slate-800 shadow-2xl space-y-5 hidden">
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div>
+                    <p class="text-xs text-slate-400 uppercase tracking-widest"><i class="fa-solid fa-gamepad text-indigo-400 mr-1"></i> Win Go 1 Min</p>
+                    <p id="color-period-id" class="text-white font-mono font-bold text-sm mt-0.5">2026030301054</p>
+                </div>
+                <div class="text-center sm:text-right">
+                    <p class="text-xs text-slate-400 uppercase tracking-widest">Matching Stop Time</p>
+                    <p id="color-timer-display" class="text-2xl font-black font-mono text-amber-400">00:30</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="openColorBetModal('Big', 2)" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-sm flex flex-col items-center">
+                    <span>BIG (5-9)</span>
+                    <span class="text-[10px] opacity-80">1 : 2</span>
+                </button>
+                <button onclick="openColorBetModal('Small', 2)" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-sm flex flex-col items-center">
+                    <span>SMALL (0-4)</span>
+                    <span class="text-[10px] opacity-80">1 : 2</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+                <button onclick="openColorBetModal('Green', 2)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-sm flex flex-col items-center">
+                    <span>Green</span>
+                    <span class="text-[10px] opacity-80">1 : 2</span>
+                </button>
+                <button onclick="openColorBetModal('Violet', 4.5)" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-sm flex flex-col items-center">
+                    <span>Violet</span>
+                    <span class="text-[10px] opacity-80">1 : 4.5</span>
+                </button>
+                <button onclick="openColorBetModal('Red', 2)" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-sm flex flex-col items-center">
+                    <span>Red</span>
+                    <span class="text-[10px] opacity-80">1 : 2</span>
+                </button>
+            </div>
+
+            <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-2">
+                <p class="text-xs text-slate-400 font-semibold mb-2">Select Specific Number (Payout 1 : 9)</p>
+                <div class="grid grid-cols-5 gap-2">
+                    <button onclick="openColorBetModal('Number 0', 9, 0)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">0</button>
+                    <button onclick="openColorBetModal('Number 1', 9, 1)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">1</button>
+                    <button onclick="openColorBetModal('Number 2', 9, 2)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">2</button>
+                    <button onclick="openColorBetModal('Number 3', 9, 3)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">3</button>
+                    <button onclick="openColorBetModal('Number 4', 9, 4)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">4</button>
+                    <button onclick="openColorBetModal('Number 5', 9, 5)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-purple-400 font-bold py-2.5 rounded-lg text-sm transition">5</button>
+                    <button onclick="openColorBetModal('Number 6', 9, 6)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">6</button>
+                    <button onclick="openColorBetModal('Number 7', 9, 7)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">7</button>
+                    <button onclick="openColorBetModal('Number 8', 9, 8)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">8</button>
+                    <button onclick="openColorBetModal('Number 9', 9, 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">9</button>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <p class="text-xs font-bold text-slate-300 uppercase tracking-wider"><i class="fa-solid fa-clock-rotate-left mr-1.5 text-accentGreen"></i> Parity Record History</p>
+                <div class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-400">
+                                    <th class="py-2.5 px-3">Period</th>
+                                    <th class="py-2.5 px-3">Price</th>
+                                    <th class="py-2.5 px-3">Number</th>
+                                    <th class="py-2.5 px-3 text-right">Result</th>
+                                </tr>
+                            </thead>
+                            <tbody id="color-history-table" class="divide-y divide-slate-800/60 font-mono"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
+
+    <div id="color-bet-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-cardBg border border-slate-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center pb-2.5 border-b border-slate-800">
+                <h3 id="color-modal-title" class="font-bold text-white text-sm">Bet Selection</h3>
+                <button onclick="closeModal('color-bet-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Contract Money ($)</label>
+                    <div class="flex space-x-1 mb-2">
+                        <button onclick="setColorStake(10)" class="flex-1 bg-slate-900 border border-slate-700 hover:border-slate-500 py-1 rounded text-xs font-bold text-white">10</button>
+                        <button onclick="setColorStake(50)" class="flex-1 bg-slate-900 border border-slate-700 hover:border-slate-500 py-1 rounded text-xs font-bold text-white">50</button>
+                        <button onclick="setColorStake(100)" class="flex-1 bg-slate-900 border border-slate-700 hover:border-slate-500 py-1 rounded text-xs font-bold text-white">100</button>
+                        <button onclick="setColorStake(500)" class="flex-1 bg-slate-900 border border-slate-700 hover:border-slate-500 py-1 rounded text-xs font-bold text-white">500</button>
+                    </div>
+                    <input type="number" id="color-stake-input" min="1" value="10" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-emerald-500">
+                </div>
+            </div>
+            <button onclick="submitColorBet()" class="w-full bg-accentGreen hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-lg transition text-xs shadow-lg">
+                Confirm Bet
+            </button>
+        </div>
+    </div>
 
     <div id="profile-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-cardBg border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
@@ -129,18 +236,16 @@
                 <h3 class="font-bold text-white text-base"><i class="fa-solid fa-id-card text-indigo-400 mr-2"></i> User Profile</h3>
                 <button onclick="closeModal('profile-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-
             <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
                 <div class="flex items-center space-x-3 pb-3 border-b border-slate-800/80">
                     <div class="w-12 h-12 bg-indigo-600/20 border border-indigo-500/40 rounded-full flex items-center justify-center text-indigo-400 text-xl font-bold">
-                        <i class="fa-solid fa-user"></i>
+                        <i class="fa-solid fa-phone"></i>
                     </div>
                     <div>
-                        <p class="text-xs text-slate-400">Username</p>
-                        <p id="profile-username-display" class="text-white font-bold text-base">-</p>
+                        <p class="text-xs text-slate-400">Mobile Number</p>
+                        <p id="profile-mobile-display" class="text-white font-bold text-base">-</p>
                     </div>
                 </div>
-                
                 <div class="grid grid-cols-2 gap-3 pt-1">
                     <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
                         <p class="text-[10px] text-slate-400">Available Balance</p>
@@ -152,7 +257,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="space-y-2 pt-2">
                 <button onclick="openModal('auth-modal'); closeModal('profile-modal');" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 rounded-lg transition text-xs border border-slate-700">
                     <i class="fa-solid fa-right-left mr-1"></i> Switch Account / Login
@@ -167,26 +271,23 @@
     <div id="auth-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-cardBg border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
             <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-                <h3 class="font-bold text-white text-base"><i class="fa-solid fa-user-circle text-accentGreen mr-2"></i> Account Login / Register</h3>
+                <h3 class="font-bold text-white text-base"><i class="fa-solid fa-phone-volume text-accentGreen mr-2"></i> Mobile Login / Register</h3>
                 <button onclick="closeModal('auth-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-
             <div class="flex bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs font-semibold">
                 <button onclick="switchAuthTab('login')" id="tab-login-btn" class="flex-1 py-1.5 rounded bg-slate-800 text-white transition text-center">Login</button>
                 <button onclick="switchAuthTab('register')" id="tab-register-btn" class="flex-1 py-1.5 rounded text-slate-400 hover:text-white transition text-center">Register</button>
             </div>
-
             <div class="space-y-3">
                 <div>
-                    <label class="text-xs text-slate-400 block mb-1">Username</label>
-                    <input type="text" id="auth-username" placeholder="Enter your username" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-accentGreen">
+                    <label class="text-xs text-slate-400 block mb-1">Mobile Number (10 Digits)</label>
+                    <input type="tel" id="auth-mobile" maxlength="10" placeholder="e.g. 9876543210" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-accentGreen font-mono">
                 </div>
                 <div>
                     <label class="text-xs text-slate-400 block mb-1">Password</label>
-                    <input type="password" id="auth-password" placeholder="Enter password" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-accentGreen">
+                    <input type="password" id="auth-password" placeholder="Enter your password" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-accentGreen">
                 </div>
             </div>
-
             <button id="auth-submit-btn" onclick="handleAuthAction()" class="w-full bg-accentGreen hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-lg transition text-xs shadow-lg">
                 Login to Account
             </button>
@@ -196,20 +297,18 @@
     <div id="deposit-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="bg-cardBg border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
             <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-                <h3 class="font-bold text-white text-base"><i class="fa-solid fa-wallet text-accentGreen mr-2"></i> Deposit via bKash / Nagad</h3>
+                <h3 class="font-bold text-white text-base"><i class="fa-solid fa-wallet text-accentGreen mr-2"></i> Deposit & Pay</h3>
                 <button onclick="closeModal('deposit-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            
             <div class="flex flex-col items-center bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
-                <p class="text-xs text-slate-300 font-semibold text-center">Send money to bKash / Nagad:</p>
-                <div class="bg-slate-950 px-4 py-2 rounded-lg border border-slate-700 text-emerald-400 font-mono font-bold text-lg tracking-wider select-all">
-                    01760270407
+                <p class="text-xs text-slate-300 font-semibold">Scan QR Code to Pay:</p>
+                <div class="w-36 h-36 bg-white p-2 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-qrcode text-slate-950 text-7xl"></i>
                 </div>
             </div>
-
             <div class="space-y-3">
                 <div>
-                    <label class="text-xs text-slate-400 block mb-1">Deposit Amount ($)</label>
+                    <label class="text-xs text-slate-400 block mb-1">Confirm Deposit Amount ($)</label>
                     <input type="number" id="deposit-amount-input" min="10" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-accentGreen">
                 </div>
                 <div>
@@ -218,7 +317,7 @@
                 </div>
             </div>
             <button onclick="submitDepositRequest()" class="w-full bg-accentGreen hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-lg transition text-xs shadow-lg">
-                Submit Deposit
+                I Have Paid - Add Balance
             </button>
         </div>
     </div>
@@ -229,19 +328,18 @@
                 <h3 class="font-bold text-white text-base"><i class="fa-solid fa-arrow-up-right-from-square text-amber-400 mr-2"></i> Request Withdrawal</h3>
                 <button onclick="closeModal('withdraw-modal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-
             <div class="space-y-3">
                 <div>
                     <label class="text-xs text-slate-400 block mb-1">Withdrawal Method</label>
                     <select id="withdraw-method" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-amber-500">
                         <option value="bKash">bKash</option>
                         <option value="Nagad">Nagad</option>
-                        <option value="Rocket">Rocket</option>
+                        <option value="USDT">USDT Crypto</option>
                     </select>
                 </div>
                 <div>
-                    <label class="text-xs text-slate-400 block mb-1">Account Number / Phone</label>
-                    <input type="text" id="withdraw-account" placeholder="e.g. 017XXXXXXXX" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-amber-500">
+                    <label class="text-xs text-slate-400 block mb-1">Account Number / Address</label>
+                    <input type="text" id="withdraw-account" placeholder="Enter account details" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
                     <label class="text-xs text-slate-400 block mb-1">Amount ($)</label>
@@ -255,7 +353,6 @@
     </div>
 
     <script>
-        // REPLACE WITH YOUR ACTUAL FIREBASE CONFIG FROM CONSOLE
         const firebaseConfig = {
             apiKey: "AIzaSyC9K4XpIYg9vZAEKsTzfnUxozE9RHXy8q4",
             authDomain: "apexbet-954e8.firebaseapp.com",
@@ -263,46 +360,44 @@
             projectId: "apexbet-954e8",
             storageBucket: "apexbet-954e8.firebasestorage.app",
             messagingSenderId: "967180729015",
-            appId: "1:967180729015:web:1b19a06d767d70bcba6b32"
+            appId: "1:967180729015:web:1b19a06d767d70bcba6b32",
+            measurementId: "G-165KYQQ858"
         };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let currentUser = localStorage.getItem('apex_logged_user') || null;
+        let currentMobile = localStorage.getItem('apex_logged_mobile') || null;
         let balance = 0.00;
         let authMode = 'login';
         let allUsersData = {};
 
-        // Listen for live updates from Firebase Realtime Database
         db.ref('users').on('value', (snapshot) => {
             allUsersData = snapshot.val() || {};
             loadUserSession();
         });
 
         function loadUserSession() {
-            let userKeys = Object.keys(allUsersData);
-            if (!currentUser && userKeys.length > 0) {
-                currentUser = userKeys[0];
-                localStorage.setItem('apex_logged_user', currentUser);
-            }
-
-            if (currentUser && allUsersData[currentUser]) {
-                balance = allUsersData[currentUser].balance || 0;
-                document.getElementById('current-username').innerText = currentUser;
-                document.getElementById('profile-username-display').innerText = currentUser;
+            if (currentMobile && allUsersData[currentMobile]) {
+                balance = allUsersData[currentMobile].balance || 0;
+                document.getElementById('current-mobile').innerText = `+91 ${currentMobile}`;
+                document.getElementById('profile-mobile-display').innerText = `+91 ${currentMobile}`;
                 document.getElementById('profile-balance-display').innerText = `$${balance.toFixed(2)}`;
             } else {
                 balance = 0.00;
-                document.getElementById('current-username').innerText = "Guest (Login)";
-                document.getElementById('profile-username-display').innerText = "Not Logged In";
+                document.getElementById('current-mobile').innerText = "Not Logged In";
+                document.getElementById('profile-mobile-display').innerText = "Not Logged In";
                 document.getElementById('profile-balance-display').innerText = "$0.00";
+                
+                if (!currentMobile) {
+                    openModal('auth-modal');
+                }
             }
             document.getElementById('user-balance').innerText = `$${balance.toFixed(2)}`;
         }
 
         function checkAuthAndOpenProfile() {
-            if (!currentUser || !allUsersData[currentUser]) {
+            if (!currentMobile || !allUsersData[currentMobile]) {
                 openModal('auth-modal');
             } else {
                 loadUserSession();
@@ -311,8 +406,33 @@
         }
 
         function saveUserBalance() {
-            if (!currentUser || !allUsersData[currentUser]) return;
-            db.ref('users/' + currentUser).update({ balance: balance });
+            if (!currentMobile || !allUsersData[currentMobile]) return;
+            db.ref('users/' + currentMobile).update({ balance: balance });
+        }
+
+        function switchGameTab(game) {
+            const aviatorCont = document.getElementById('game-aviator-container');
+            const colorCont = document.getElementById('game-color-container');
+            const tabAviator = document.getElementById('tab-aviator');
+            const tabColor = document.getElementById('tab-color');
+            const mobAviator = document.getElementById('mobile-tab-aviator');
+            const mobColor = document.getElementById('mobile-tab-color');
+
+            if (game === 'aviator') {
+                aviatorCont.classList.remove('hidden');
+                colorCont.classList.add('hidden');
+                tabAviator.className = "px-4 py-1.5 rounded-lg bg-slate-800 text-white transition";
+                tabColor.className = "px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+                mobAviator.className = "flex-1 py-1.5 rounded bg-slate-800 text-white text-center transition";
+                mobColor.className = "flex-1 py-1.5 rounded text-slate-400 text-center transition";
+            } else {
+                colorCont.classList.remove('hidden');
+                aviatorCont.classList.add('hidden');
+                tabColor.className = "px-4 py-1.5 rounded-lg bg-slate-800 text-white transition";
+                tabAviator.className = "px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+                mobColor.className = "flex-1 py-1.5 rounded bg-slate-800 text-white text-center transition";
+                mobAviator.className = "flex-1 py-1.5 rounded text-slate-400 text-center transition";
+            }
         }
 
         function switchAuthTab(mode) {
@@ -333,51 +453,182 @@
         }
 
         function handleAuthAction() {
-            let username = document.getElementById('auth-username').value.trim();
+            let mobile = document.getElementById('auth-mobile').value.trim();
             let password = document.getElementById('auth-password').value.trim();
-
-            if (!username || !password) { alert("Please enter both username and password."); return; }
+            if (mobile.length !== 10 || !password) { alert("Please enter a valid 10-digit mobile number and password."); return; }
 
             if (authMode === 'register') {
-                if (allUsersData[username]) { alert("Username already exists!"); return; }
-
+                if (allUsersData[mobile]) { alert("Mobile number already registered! Please login."); return; }
                 let newUserObj = {
                     password: password,
-                    balance: 100.00, // Registration bonus
+                    balance: 100.00,
                     regDate: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()
                 };
-
-                db.ref('users/' + username).set(newUserObj, (error) => {
-                    if (error) {
-                        alert("Registration failed.");
-                    } else {
-                        currentUser = username;
-                        localStorage.setItem('apex_logged_user', currentUser);
+                db.ref('users/' + mobile).set(newUserObj, (error) => {
+                    if (!error) {
+                        currentMobile = mobile;
+                        localStorage.setItem('apex_logged_mobile', currentMobile);
                         alert("Account registered successfully! Welcome bonus $100.00 added.");
                         closeModal('auth-modal');
                     }
                 });
             } else {
-                if (!allUsersData[username] || allUsersData[username].password !== password) {
-                    alert("Invalid username or password!");
+                if (!allUsersData[mobile] || allUsersData[mobile].password !== password) {
+                    alert("Invalid mobile number or password!");
                     return;
                 }
-                currentUser = username;
-                localStorage.setItem('apex_logged_user', currentUser);
-                alert(`Logged in successfully as ${currentUser}!`);
+                currentMobile = mobile;
+                localStorage.setItem('apex_logged_mobile', currentMobile);
+                alert(`Logged in successfully!`);
                 closeModal('auth-modal');
                 loadUserSession();
             }
         }
 
         function logoutUser() {
-            localStorage.removeItem('apex_logged_user');
-            currentUser = null;
+            localStorage.removeItem('apex_logged_mobile');
+            currentMobile = null;
             loadUserSession();
             closeModal('profile-modal');
             alert("Logged out successfully.");
         }
 
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function submitDepositRequest() {
+            if (!currentMobile || !allUsersData[currentMobile]) { alert("Please login first!"); openModal('auth-modal'); return; }
+            const amount = parseFloat(document.getElementById('deposit-amount-input').value) || 0;
+            const trxId = document.getElementById('deposit-trx-input').value.trim();
+            if (amount <= 0 || !trxId) { alert("Please enter valid amount and TrxID."); return; }
+
+            db.ref('deposits').push({ user: currentMobile, amount: amount, trxId: trxId, time: new Date().toLocaleTimeString() });
+            closeModal('deposit-modal');
+            alert("Deposit request sent to Admin for verification.");
+        }
+
+        function submitWithdrawRequest() {
+            if (!currentMobile || !allUsersData[currentMobile]) { alert("Please login first!"); openModal('auth-modal'); return; }
+            const method = document.getElementById('withdraw-method').value;
+            const account = document.getElementById('withdraw-account').value.trim();
+            const amount = parseFloat(document.getElementById('withdraw-amount').value) || 0;
+
+            if (amount <= 0 || !account) { alert("Please enter valid account and amount."); return; }
+            if (amount > balance) { alert("Insufficient balance for withdrawal!"); return; }
+
+            balance -= amount;
+            saveUserBalance();
+            db.ref('withdrawals').push({ user: currentMobile, method: method, account: account, amount: amount, time: new Date().toLocaleTimeString() });
+            closeModal('withdraw-modal');
+            alert("Withdrawal request submitted successfully!");
+        }
+
+        // Color Trading Game Logic
+        let selectedColorOption = '';
+        let selectedMultiplier = 2;
+        let colorHistory = [
+            { period: '2026030301053', price: '94281', number: '1', color: 'Small / Green' },
+            { period: '2026030301052', price: '48390', number: '0', color: 'Small / Violet' },
+            { period: '2026030301051', price: '12948', number: '8', color: 'Big / Red' },
+            { period: '2026030301050', price: '58291', number: '4', color: 'Small / Green' }
+        ];
+
+        function openColorBetModal(option, multiplier) {
+            selectedColorOption = option;
+            selectedMultiplier = multiplier;
+            document.getElementById('color-modal-title').innerText = `Place Bet: ${option}`;
+            openModal('color-bet-modal');
+        }
+
+        function setColorStake(val) { document.getElementById('color-stake-input').value = val; }
+
+        function submitColorBet() {
+            if (!currentMobile || !allUsersData[currentMobile]) { alert("Please login first!"); openModal('auth-modal'); closeModal('color-bet-modal'); return; }
+            const stake = parseFloat(document.getElementById('color-stake-input').value) || 0;
+            if (stake <= 0) { alert("Enter valid bet amount."); return; }
+            if (stake > balance) { alert("Insufficient balance!"); return; }
+
+            balance -= stake;
+            saveUserBalance();
+
+            const currentPeriod = document.getElementById('color-period-id').innerText;
+            db.ref('colorBets').push({ 
+                user: currentMobile, 
+                period: currentPeriod, 
+                option: selectedColorOption, 
+                stake: stake, 
+                multiplier: selectedMultiplier, 
+                time: new Date().toLocaleTimeString() 
+            });
+
+            closeModal('color-bet-modal');
+            alert(`Successfully placed $${stake} bet on ${selectedColorOption} for period ${currentPeriod}!`);
+        }
+
+        function renderColorHistory() {
+            let tbody = document.getElementById('color-history-table');
+            tbody.innerHTML = '';
+            colorHistory.forEach(item => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-900/40">
+                        <td class="py-2.5 px-3 text-slate-300">${item.period}</td>
+                        <td class="py-2.5 px-3 text-white font-bold">${item.price}</td>
+                        <td class="py-2.5 px-3 font-bold">${item.number}</td>
+                        <td class="py-2.5 px-3 text-right"><span class="px-2 py-0.5 rounded border text-[10px] font-bold bg-slate-800 text-emerald-400 border-slate-700">${item.color}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        let colorTimerSeconds = 60;
+        function startColorTimer() {
+            setInterval(() => {
+                colorTimerSeconds--;
+                let m = Math.floor(colorTimerSeconds / 60);
+                let s = colorTimerSeconds % 60;
+                document.getElementById('color-timer-display').innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
+
+                if (colorTimerSeconds <= 0) {
+                    colorTimerSeconds = 60;
+                    
+                    let randNum = Math.floor(Math.random() * 10);
+                    let sizeLabel = randNum >= 5 ? 'Big' : 'Small';
+                    let colorLabel = randNum === 5 ? 'Violet' : (randNum % 2 === 0 ? 'Red' : 'Green');
+                    let winningColorCombo = `${sizeLabel} / ${colorLabel}`;
+                    let currentPeriod = document.getElementById('color-period-id').innerText;
+
+                    // Evaluate active bets for this period and payout winners automatically
+                    db.ref('colorBets').once('value', (snapshot) => {
+                        let bets = snapshot.val() || {};
+                        Object.keys(bets).forEach(betId => {
+                            let bet = bets[betId];
+                            if (bet.period === currentPeriod) {
+                                let isWinner = false;
+                                if (bet.option === sizeLabel || bet.option === colorLabel || bet.option === `Number ${randNum}`) {
+                                    isWinner = true;
+                                }
+
+                                if (isWinner && bet.user === currentMobile) {
+                                    let winnings = bet.stake * bet.multiplier;
+                                    balance += winnings;
+                                    saveUserBalance();
+                                    alert(`🎉 Congratulations! You won $${winnings.toFixed(2)} on Period ${currentPeriod}!`);
+                                }
+                            }
+                        });
+                    });
+
+                    let newPeriod = (parseInt(currentPeriod) + 1).toString();
+                    document.getElementById('color-period-id').innerText = newPeriod;
+
+                    colorHistory.unshift({ period: currentPeriod, price: Math.floor(10000 + Math.random() * 90000).toString(), number: randNum.toString(), color: winningColorCombo });
+                    if (colorHistory.length > 10) colorHistory.pop();
+                    renderColorHistory();
+                }
+            }, 1000);
+        }
+
+        // Aviator Game Logic
         let flightState = 'IDLE'; 
         let currentMultiplier = 1.00;
         let flightInterval = null;
@@ -398,51 +649,6 @@
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
-
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-        function submitDepositRequest() {
-            if (!currentUser || !allUsersData[currentUser]) { alert("Please login first!"); openModal('auth-modal'); return; }
-            const amount = parseFloat(document.getElementById('deposit-amount-input').value) || 0;
-            const trxId = document.getElementById('deposit-trx-input').value.trim();
-            if (amount <= 0 || !trxId) { alert("Please enter valid amount and TrxID."); return; }
-
-            db.ref('deposits').push({
-                user: currentUser,
-                amount: amount,
-                trxId: trxId,
-                time: new Date().toLocaleTimeString()
-            });
-
-            closeModal('deposit-modal');
-            alert("Deposit request sent to Admin for verification.");
-        }
-
-        function submitWithdrawRequest() {
-            if (!currentUser || !allUsersData[currentUser]) { alert("Please login first!"); openModal('auth-modal'); return; }
-            const method = document.getElementById('withdraw-method').value;
-            const account = document.getElementById('withdraw-account').value.trim();
-            const amount = parseFloat(document.getElementById('withdraw-amount').value) || 0;
-
-            if (amount <= 0 || !account) { alert("Please enter valid account number and amount."); return; }
-            if (amount > balance) { alert("Insufficient balance for withdrawal!"); return; }
-
-            // Deduct balance immediately upon request
-            balance -= amount;
-            saveUserBalance();
-
-            db.ref('withdrawals').push({
-                user: currentUser,
-                method: method,
-                account: account,
-                amount: amount,
-                time: new Date().toLocaleTimeString()
-            });
-
-            closeModal('withdraw-modal');
-            alert("Withdrawal request submitted successfully!");
-        }
 
         function setStake(val) { document.getElementById('stake-input').value = val; }
 
@@ -498,7 +704,7 @@
         }
 
         function handleBetAction() {
-            if (!currentUser || !allUsersData[currentUser]) { alert("Please login first!"); openModal('auth-modal'); return; }
+            if (!currentMobile || !allUsersData[currentMobile]) { alert("Please login first!"); openModal('auth-modal'); return; }
             const actionBtn = document.getElementById('action-btn');
             if (flightState === 'COUNTDOWN') {
                 if (!hasPlacedBet) {
@@ -518,7 +724,12 @@
                 }
             } 
             else if (flightState === 'FLYING' && hasPlacedBet && !hasCashedOut) {
-                executeCashOut();
+                hasCashedOut = true;
+                const winnings = currentStake * currentMultiplier;
+                balance += winnings;
+                saveUserBalance();
+                actionBtn.innerText = `WON $${winnings.toFixed(2)}!`;
+                actionBtn.className = "w-full bg-emerald-600 text-white font-black py-3 rounded-xl text-sm tracking-wider";
             }
             else if (flightState === 'IDLE' || flightState === 'CRASHED') {
                 currentStake = parseFloat(document.getElementById('stake-input').value) || 20;
@@ -529,16 +740,6 @@
                 actionBtn.innerText = "CANCEL (QUEUED)";
                 actionBtn.className = "w-full bg-amber-600 text-white font-black py-3 rounded-xl text-sm tracking-wider";
             }
-        }
-
-        function executeCashOut() {
-            hasCashedOut = true;
-            const winnings = currentStake * currentMultiplier;
-            balance += winnings;
-            saveUserBalance();
-            const actionBtn = document.getElementById('action-btn');
-            actionBtn.innerText = `WON $${winnings.toFixed(2)}!`;
-            actionBtn.className = "w-full bg-emerald-600 text-white font-black py-3 rounded-xl text-sm tracking-wider";
         }
 
         function launchFlight() {
@@ -575,33 +776,11 @@
                 const endY = Math.max(30, startY - (progress * (canvas.height * 0.75)));
                 const ctrlX = startX + (endX - startX) * 0.4, ctrlY = startY;
 
-                ctx.beginPath();
-                ctx.moveTo(startX, startY);
-                ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
-                ctx.lineTo(endX, canvas.height);
-                ctx.lineTo(startX, canvas.height);
-                ctx.fillStyle = 'rgba(220, 38, 38, 0.15)';
-                ctx.fill();
+                ctx.beginPath(); ctx.moveTo(startX, startY); ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY); ctx.lineTo(endX, canvas.height); ctx.lineTo(startX, canvas.height); ctx.fillStyle = 'rgba(220, 38, 38, 0.15)'; ctx.fill();
+                ctx.beginPath(); ctx.moveTo(startX, startY); ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY); ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 4; ctx.shadowColor = '#dc2626'; ctx.shadowBlur = 20; ctx.stroke(); ctx.shadowBlur = 0;
 
-                ctx.beginPath();
-                ctx.moveTo(startX, startY);
-                ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
-                ctx.strokeStyle = '#dc2626';
-                ctx.lineWidth = 4;
-                ctx.shadowColor = '#dc2626';
-                ctx.shadowBlur = 20;
-                ctx.stroke();
-                ctx.shadowBlur = 0;
-
-                ctx.save();
-                ctx.translate(endX, endY);
-                ctx.rotate(-Math.PI / 6);
-                ctx.fillStyle = '#dc2626';
-                ctx.shadowColor = '#dc2626';
-                ctx.shadowBlur = 12;
-                ctx.beginPath();
-                ctx.moveTo(-20, 0); ctx.lineTo(20, -4); ctx.lineTo(14, 6); ctx.closePath(); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(-3, 3); ctx.lineTo(8, -14); ctx.lineTo(12, 3); ctx.closePath(); ctx.fill();
+                ctx.save(); ctx.translate(endX, endY); ctx.rotate(-Math.PI / 6); ctx.fillStyle = '#dc2626'; ctx.shadowColor = '#dc2626'; ctx.shadowBlur = 12;
+                ctx.beginPath(); ctx.moveTo(-20, 0); ctx.lineTo(20, -4); ctx.lineTo(14, 6); ctx.closePath(); ctx.fill();
                 ctx.restore();
 
                 animFrameId = requestAnimationFrame(renderStep);
@@ -613,7 +792,12 @@
                 const autoCashoutEnabled = document.getElementById('auto-cashout-toggle').checked;
                 const targetAutoMultiplier = parseFloat(document.getElementById('auto-cashout-input').value) || 2.00;
                 if (autoCashoutEnabled && hasPlacedBet && !hasCashedOut && currentMultiplier >= targetAutoMultiplier) {
-                    executeCashOut();
+                    hasCashedOut = true;
+                    let winnings = currentStake * currentMultiplier;
+                    balance += winnings;
+                    saveUserBalance();
+                    actionBtn.innerText = `WON $${winnings.toFixed(2)}!`;
+                    actionBtn.className = "w-full bg-emerald-600 text-white font-black py-3 rounded-xl text-sm tracking-wider";
                 }
 
                 if (currentMultiplier >= crashPoint) {
@@ -661,6 +845,8 @@
         window.onload = function() {
             renderHistory();
             startCountdown();
+            renderColorHistory();
+            startColorTimer();
         };
     </script>
 </body>
