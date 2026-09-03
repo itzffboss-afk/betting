@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ApexBet - Aviator & Color Trading</title>
+    <title>ApexBet - Aviator, Color Trading & Mines</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -37,6 +37,7 @@
             <div class="hidden sm:flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
                 <button onclick="switchGameTab('aviator')" id="tab-aviator" class="px-4 py-1.5 rounded-lg bg-slate-800 text-white transition"><i class="fa-solid fa-plane-departure mr-1.5"></i> Aviator</button>
                 <button onclick="switchGameTab('color')" id="tab-color" class="px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition"><i class="fa-solid fa-palette mr-1.5"></i> Color Trading</button>
+                <button onclick="switchGameTab('mines')" id="tab-mines" class="px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition"><i class="fa-solid fa-bomb mr-1.5"></i> Mines</button>
             </div>
 
             <div class="flex items-center space-x-2 sm:space-x-3">
@@ -60,7 +61,8 @@
         </div>
         <div class="flex sm:hidden bg-slate-950 p-1.5 border-t border-slate-800 text-xs font-semibold">
             <button onclick="switchGameTab('aviator')" id="mobile-tab-aviator" class="flex-1 py-1.5 rounded bg-slate-800 text-white text-center transition"><i class="fa-solid fa-plane mr-1"></i> Aviator</button>
-            <button onclick="switchGameTab('color')" id="mobile-tab-color" class="flex-1 py-1.5 rounded text-slate-400 text-center transition"><i class="fa-solid fa-palette mr-1"></i> Color Trading</button>
+            <button onclick="switchGameTab('color')" id="mobile-tab-color" class="flex-1 py-1.5 rounded text-slate-400 text-center transition"><i class="fa-solid fa-palette mr-1"></i> Color</button>
+            <button onclick="switchGameTab('mines')" id="mobile-tab-mines" class="flex-1 py-1.5 rounded text-slate-400 text-center transition"><i class="fa-solid fa-bomb mr-1"></i> Mines</button>
         </div>
     </header>
 
@@ -172,16 +174,16 @@
             <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-2">
                 <p class="text-xs text-slate-400 font-semibold mb-2">Select Specific Number (Payout 1 : 9)</p>
                 <div class="grid grid-cols-5 gap-2">
-                    <button onclick="openColorBetModal('Number 0', 9, 0)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">0</button>
-                    <button onclick="openColorBetModal('Number 1', 9, 1)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">1</button>
-                    <button onclick="openColorBetModal('Number 2', 9, 2)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">2</button>
-                    <button onclick="openColorBetModal('Number 3', 9, 3)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">3</button>
-                    <button onclick="openColorBetModal('Number 4', 9, 4)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">4</button>
-                    <button onclick="openColorBetModal('Number 5', 9, 5)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-purple-400 font-bold py-2.5 rounded-lg text-sm transition">5</button>
-                    <button onclick="openColorBetModal('Number 6', 9, 6)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">6</button>
-                    <button onclick="openColorBetModal('Number 7', 9, 7)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">7</button>
-                    <button onclick="openColorBetModal('Number 8', 9, 8)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">8</button>
-                    <button onclick="openColorBetModal('Number 9', 9, 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">9</button>
+                    <button onclick="openColorBetModal('Number 0', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">0</button>
+                    <button onclick="openColorBetModal('Number 1', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">1</button>
+                    <button onclick="openColorBetModal('Number 2', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">2</button>
+                    <button onclick="openColorBetModal('Number 3', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">3</button>
+                    <button onclick="openColorBetModal('Number 4', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">4</button>
+                    <button onclick="openColorBetModal('Number 5', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-purple-400 font-bold py-2.5 rounded-lg text-sm transition">5</button>
+                    <button onclick="openColorBetModal('Number 6', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">6</button>
+                    <button onclick="openColorBetModal('Number 7', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">7</button>
+                    <button onclick="openColorBetModal('Number 8', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-rose-400 font-bold py-2.5 rounded-lg text-sm transition">8</button>
+                    <button onclick="openColorBetModal('Number 9', 9)" class="bg-slate-950 hover:bg-slate-800 border border-slate-700 text-emerald-400 font-bold py-2.5 rounded-lg text-sm transition">9</button>
                 </div>
             </div>
 
@@ -201,6 +203,48 @@
                             <tbody id="color-history-table" class="divide-y divide-slate-800/60 font-mono"></tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-mines-container" class="bg-cardBg p-5 rounded-2xl border border-slate-800 shadow-2xl space-y-4 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3 md:col-span-1">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1 font-semibold">Bet Amount ($)</label>
+                        <input type="number" id="mines-stake" min="1" value="10" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-accentGreen">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1 font-semibold">Mines Count (2 - 24)</label>
+                        <select id="mines-count" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white font-bold text-sm focus:outline-none focus:border-accentGreen">
+                            <option value="2" selected>2 Mines</option>
+                            <option value="4">4 Mines</option>
+                            <option value="6">6 Mines</option>
+                            <option value="10">10 Mines</option>
+                            <option value="15">15 Mines</option>
+                            <option value="20">20 Mines</option>
+                        </select>
+                    </div>
+                    <div class="pt-2">
+                        <button id="mines-action-btn" onclick="toggleMinesGame()" class="w-full bg-accentGreen hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl transition shadow-lg text-sm tracking-wider">
+                            PLAY GAME
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col items-center justify-center md:col-span-2 relative min-h-[320px]">
+                    <div id="mines-status-overlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-xs flex flex-col items-center justify-center z-10 rounded-xl transition-all">
+                        <i class="fa-solid fa-bomb text-accentGreen text-4xl mb-2 animate-bounce"></i>
+                        <p class="text-white font-bold text-sm">Set your bet & click Play</p>
+                    </div>
+                    
+                    <div class="flex justify-between w-full mb-3 px-2 text-xs font-semibold text-slate-300">
+                        <span>Multiplier: <strong id="mines-multiplier" class="text-emerald-400 font-mono text-sm">1.00x</strong></span>
+                        <span>Profit: <strong id="mines-profit" class="text-emerald-400 font-mono text-sm">$0.00</strong></span>
+                    </div>
+
+                    <div id="mines-grid" class="grid grid-cols-5 gap-2 w-full max-w-[320px]">
+                        </div>
                 </div>
             </div>
         </div>
@@ -413,25 +457,42 @@
         function switchGameTab(game) {
             const aviatorCont = document.getElementById('game-aviator-container');
             const colorCont = document.getElementById('game-color-container');
+            const minesCont = document.getElementById('game-mines-container');
+
             const tabAviator = document.getElementById('tab-aviator');
             const tabColor = document.getElementById('tab-color');
+            const tabMines = document.getElementById('tab-mines');
+            
             const mobAviator = document.getElementById('mobile-tab-aviator');
             const mobColor = document.getElementById('mobile-tab-color');
+            const mobMines = document.getElementById('mobile-tab-mines');
+
+            // Hide all
+            aviatorCont.classList.add('hidden');
+            colorCont.classList.add('hidden');
+            minesCont.classList.add('hidden');
+
+            tabAviator.className = "px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+            tabColor.className = "px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+            tabMines.className = "px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+            
+            mobAviator.className = "flex-1 py-1.5 rounded text-slate-400 text-center transition";
+            mobColor.className = "flex-1 py-1.5 rounded text-slate-400 text-center transition";
+            mobMines.className = "flex-1 py-1.5 rounded text-slate-400 text-center transition";
 
             if (game === 'aviator') {
                 aviatorCont.classList.remove('hidden');
-                colorCont.classList.add('hidden');
                 tabAviator.className = "px-4 py-1.5 rounded-lg bg-slate-800 text-white transition";
-                tabColor.className = "px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
                 mobAviator.className = "flex-1 py-1.5 rounded bg-slate-800 text-white text-center transition";
-                mobColor.className = "flex-1 py-1.5 rounded text-slate-400 text-center transition";
-            } else {
+            } else if (game === 'color') {
                 colorCont.classList.remove('hidden');
-                aviatorCont.classList.add('hidden');
                 tabColor.className = "px-4 py-1.5 rounded-lg bg-slate-800 text-white transition";
-                tabAviator.className = "px-4 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
                 mobColor.className = "flex-1 py-1.5 rounded bg-slate-800 text-white text-center transition";
-                mobAviator.className = "flex-1 py-1.5 rounded text-slate-400 text-center transition";
+            } else if (game === 'mines') {
+                minesCont.classList.remove('hidden');
+                tabMines.className = "px-4 py-1.5 rounded-lg bg-slate-800 text-white transition";
+                mobMines.className = "flex-1 py-1.5 rounded bg-slate-800 text-white text-center transition";
+                initMinesGrid();
             }
         }
 
@@ -523,6 +584,159 @@
             alert("Withdrawal request submitted successfully!");
         }
 
+        // MINES GAME LOGIC (Smooth, Gentle Progression starting from 2 mines)
+        let minesGameActive = false;
+        let minePositions = [];
+        let revealedCount = 0;
+        let currentMinesStake = 10;
+        let totalMinesCount = 2;
+        let currentMinesMultiplier = 1.00;
+
+        function initMinesGrid() {
+            const grid = document.getElementById('mines-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < 25; i++) {
+                grid.innerHTML += `
+                    <button onclick="clickMineTile(${i})" id="mine-tile-${i}" class="h-12 bg-slate-950 hover:bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-lg font-bold transition disabled:cursor-not-allowed" disabled>
+                        <i class="fa-solid fa-gem text-slate-700 opacity-30"></i>
+                    </button>
+                `;
+            }
+        }
+
+        function toggleMinesGame() {
+            if (!currentMobile || !allUsersData[currentMobile]) { alert("Please login first!"); openModal('auth-modal'); return; }
+            const actionBtn = document.getElementById('mines-action-btn');
+
+            if (!minesGameActive) {
+                // Start game
+                currentMinesStake = parseFloat(document.getElementById('mines-stake').value) || 10;
+                totalMinesCount = parseInt(document.getElementById('mines-count').value) || 2;
+
+                if (currentMinesStake > balance) { alert("Insufficient balance!"); return; }
+
+                balance -= currentMinesStake;
+                saveUserBalance();
+
+                minesGameActive = true;
+                revealedCount = 0;
+                currentMinesMultiplier = 1.00;
+                updateMinesDisplay();
+
+                // Randomly assign mines
+                minePositions = [];
+                while(minePositions.length < totalMinesCount) {
+                    let r = Math.floor(Math.random() * 25);
+                    if(!minePositions.includes(r)) minePositions.push(r);
+                }
+
+                document.getElementById('mines-status-overlay').classList.add('hidden');
+                actionBtn.innerText = "CASH OUT ($0.00)";
+                actionBtn.className = "w-full bg-amber-600 hover:bg-amber-500 text-white font-black py-3 rounded-xl transition shadow-lg text-sm tracking-wider";
+
+                for (let i = 0; i < 25; i++) {
+                    let btn = document.getElementById(`mine-tile-${i}`);
+                    btn.disabled = false;
+                    btn.className = "h-12 bg-slate-950 hover:bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-lg font-bold transition cursor-pointer";
+                    btn.innerHTML = `<i class="fa-solid fa-gem text-slate-700 opacity-30"></i>`;
+                }
+            } else {
+                // Manual Cashout
+                cashOutMines();
+            }
+        }
+
+        // Extremely smooth multiplier curve preventing rapid spikes on early taps
+        function calculateMultiplier(revealed, mines) {
+            let mult = 1.0;
+            let totalTiles = 25;
+            for (let i = 0; i < revealed; i++) {
+                let safeRemaining = totalTiles - mines - i;
+                let totalRemaining = totalTiles - i;
+                let prob = safeRemaining / totalRemaining;
+                // Softened growth scalar scaling gently by mine count
+                let growthFactor = 0.98 + (mines * 0.002);
+                mult *= (growthFactor / prob);
+            }
+            // Graduated linear damping on early clicks so first few diamonds give small, realistic steps
+            if (revealed === 1) mult = Math.min(mult, 1.08);
+            if (revealed === 2) mult = Math.min(mult, 1.18);
+            if (revealed === 3) mult = Math.min(mult, 1.30);
+
+            return Math.max(1.01, parseFloat(mult.toFixed(2)));
+        }
+
+        function clickMineTile(idx) {
+            if (!minesGameActive) return;
+            let btn = document.getElementById(`mine-tile-${idx}`);
+            if (btn.disabled) return;
+
+            if (minePositions.includes(idx)) {
+                // Hit a mine! Game Over
+                btn.disabled = true;
+                btn.className = "h-12 bg-rose-600 border border-rose-500 rounded-lg flex items-center justify-center text-white shadow-[0_0_10px_rgba(220,38,38,0.8)]";
+                btn.innerHTML = `<i class="fa-solid fa-bomb"></i>`;
+                revealAllMines(false);
+                endMinesGame(false);
+            } else {
+                // Safe diamond
+                btn.disabled = true;
+                btn.className = "h-12 bg-emerald-950 border border-emerald-500 rounded-lg flex items-center justify-center text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.5)]";
+                btn.innerHTML = `<i class="fa-solid fa-gem"></i>`;
+                
+                revealedCount++;
+                currentMinesMultiplier = calculateMultiplier(revealedCount, totalMinesCount);
+                updateMinesDisplay();
+
+                let profit = currentMinesStake * currentMinesMultiplier;
+                document.getElementById('mines-action-btn').innerText = `CASH OUT ($${profit.toFixed(2)})`;
+
+                // If all safe spots cleared automatically win
+                if (revealedCount >= (25 - totalMinesCount)) {
+                    cashOutMines();
+                }
+            }
+        }
+
+        function cashOutMines() {
+            if (!minesGameActive) return;
+            let profit = currentMinesStake * currentMinesMultiplier;
+            balance += profit;
+            saveUserBalance();
+            revealAllMines(true);
+            alert(`🎉 Cashed out successfully! Won $${profit.toFixed(2)}`);
+            endMinesGame(true);
+        }
+
+        function revealAllMines(won) {
+            for (let i = 0; i < 25; i++) {
+                let btn = document.getElementById(`mine-tile-${i}`);
+                btn.disabled = true;
+                if (minePositions.includes(i)) {
+                    btn.className = "h-12 bg-rose-950/80 border border-rose-700 rounded-lg flex items-center justify-center text-rose-500";
+                    btn.innerHTML = `<i class="fa-solid fa-bomb"></i>`;
+                }
+            }
+        }
+
+        function endMinesGame(won) {
+            minesGameActive = false;
+            const overlay = document.getElementById('mines-status-overlay');
+            overlay.classList.remove('hidden');
+            overlay.innerHTML = `
+                <i class="fa-solid ${won ? 'fa-trophy text-emerald-400' : 'fa-skull text-rose-500'} text-4xl mb-2 animate-bounce"></i>
+                <p class="text-white font-bold text-sm mb-2">${won ? 'Round Won!' : 'Boom! Hit a Mine'}</p>
+                <button onclick="toggleMinesGame()" class="bg-accentGreen text-slate-950 font-bold px-4 py-1.5 rounded-lg text-xs">Play Again</button>
+            `;
+            document.getElementById('mines-action-btn').innerText = "PLAY GAME";
+            document.getElementById('mines-action-btn').className = "w-full bg-accentGreen hover:bg-emerald-600 text-slate-950 font-black py-3 rounded-xl transition shadow-lg text-sm tracking-wider";
+        }
+
+        function updateMinesDisplay() {
+            document.getElementById('mines-multiplier').innerText = `${currentMinesMultiplier.toFixed(2)}x`;
+            document.getElementById('mines-profit').innerText = `$${(currentMinesStake * currentMinesMultiplier).toFixed(2)}`;
+        }
+
         // Color Trading Game Logic
         let selectedColorOption = '';
         let selectedMultiplier = 2;
@@ -597,7 +811,6 @@
                     let winningColorCombo = `${sizeLabel} / ${colorLabel}`;
                     let currentPeriod = document.getElementById('color-period-id').innerText;
 
-                    // Evaluate active bets for this period and payout winners automatically
                     db.ref('colorBets').once('value', (snapshot) => {
                         let bets = snapshot.val() || {};
                         Object.keys(bets).forEach(betId => {
@@ -847,6 +1060,7 @@
             startCountdown();
             renderColorHistory();
             startColorTimer();
+            initMinesGrid();
         };
     </script>
 </body>
